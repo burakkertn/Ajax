@@ -5,7 +5,8 @@
 <link href="~/lib/bootstrap/dist/css/bootstrap.min.css" rel="stylesheet" />
 
 <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
-<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
+<script src="https://unpkg.com/sweetalert/dist/sweetalert.min.js"></script>
 
 
 <div class="container">
@@ -38,20 +39,37 @@
 
     <div>
         <h3>Müşteri Silme Alanı</h3>
-        <input type="text" class="form-control" id="txtdeletedid" placeholder="Silinecek ID değerini giriniz" />
-        <br />
-        <hr />
+        <input type="text" class="form-control" id="txtdeletedid" placeholder="Silinecek ID Değerini Giriiz" />
+        <br /><hr />
     </div>
 
     <div>
-        <h3>ID' ye Göre Müşteri Getirme</h3>
-        <input type="text" class="form-control" id="txtcustomerid" placeholder="Bilgilerini getirmek istediğiniz ID değerini giriniz" />
-        <br />
-        <hr />
+        <h3>ID'Ye Göre Müşteri Getirme</h3>
+        <input type="text" class="form-control" id="txtgetcustomerid" placeholder="Bilgilerini Getirmek İstediğiniz ID Değerini Giriniz" />
+        <br /><hr />
     </div>
+
+    <div id="customerlistbyid">
+
+        <br /><hr />
+    </div>
+
+    <div>
+        <input type="text" class="form-control" placeholder="Güncellenecek Müşteri ID" id="txteditid" />
+        <br />
+        <input type="text" class="form-control" placeholder="Güncellenecek Müşteri Adı" id="txteditname" />
+        <br />
+        <input type="text" class="form-control" placeholder="Güncellenecek Müşteri Soyadı" id="txteditsurname" />
+        <br />
+        <input type="text" class="form-control" placeholder="Güncellenecek Müşteri Şehri" id="txteditcity" />
+        <br /><hr />
+    </div>
+
 </div>
 
 <script>
+
+
     $("#btncustomerlist").click(function () {
         $.ajax({
             contentType: "application/json",
@@ -61,24 +79,23 @@
             success: function (funk1) {
                 let values = jQuery.parseJSON(funk1);
                 console.log(values);
-                let tablehtml = `<table class=table table-borderes>
-                         <tr>
-                            <th>Müşteri ID </th>
-                            <th>Müşteri Adı </th>
-                            <th>Müşteri Soyadı </th>
-                            <th>Şehir </th>
-                         </tr>`
+                let tablehtml = `<table class=table table-bordered>
+                                <tr>
+                                <th>Müşteri ID</th>
+                                <th>Müşteri Adı</th>
+                                <th>Müşteri Soyadı</th>
+                                <th>Şehir</th>
+                                </tr>`
                 $.each(values, (index, value) => {
                     tablehtml += `<tr>
-                                <td>${value.CustomerID}</td>
-                                <td>${value.Name}</td>
-                                <td>${value.Surname}</td>
-                                <td>${value.City}</td>
-                             </tr>`
-
+                                    <td>${value.CustomerID}</td>
+                                    <td>${value.Name}</td>
+                                    <td>${value.Surname}</td>
+                                    <td>${value.City}</td>
+                                    </tr>`
                 });
                 tablehtml += "</table>";
-                $("#customerlist").html(tablehtml)
+                $("#customerlist").html(tablehtml);
             }
         });
     });
@@ -96,11 +113,7 @@
             data: customervalues,
             success: function (funk2) {
                 let result = jQuery.parseJSON(funk2);
-                Swal.fire(
-                    'İşlem Başarılı!',
-                    'Müşteri Eklendi!',
-                    'success'
-                )
+                swal("Müşteri Eklendi", "İyi çalışmalar!", "success");
             }
         });
     });
@@ -112,17 +125,13 @@
             type: "Get",
             contentType: "application/json",
             success: function (funk3) {
-                Swal.fire(
-                    'İşlem Başarılı!',
-                    'Müşteri Silindi!',
-                    'success'
-                )
+                swal("Müşteri Başarılı Bir Şekilde Silindi");
             }
         });
     });
 
     $("#btncustomerget").click(function () {
-        let id = $("#txtcustomerid").val();
+        let id = $("#txtgetcustomerid").val();
 
         $.ajax({
             contentType: "application/json",
@@ -133,7 +142,41 @@
             success: function (funk4) {
                 let result = jQuery.parseJSON(funk4);
                 console.log(result);
+                let htmlstr = `<table class=table table-hover>
+                            <tr>
+                            <th>Müşteri ID</th>
+                            <th>Müşteri Adı</th>
+                            <th>Müşteri Soyadı</th>
+                            <th>Müşteri Şehri</th>
+                            </tr>
+                            <tr>
+                            <td>${result.CustomerID}</td>
+                            <td>${result.Name}</td>
+                            <td>${result.Surname}</td>
+                            <td>${result.City}</td>
+                            </tr>
+                            </table>`;
+                $("#customerlistbyid").html(htmlstr);
+
             }
         });
     });
+
+    $("#btncustomeredit").click(function () {
+        let values = {
+            CustomerID: $("#txteditid").val(),
+            Name: $("#txteditname").val(),
+            Surname: $("#txteditsurname").val(),
+            City: $("#txteditcity").val()
+        };
+        $.ajax({
+            type: "post",
+            url: "/Default/UpdateCustomer/",
+            data: values,
+            success: function (funk5) {
+                swal("Müşteri Başarılı Bir Şekilde Güncellendi");
+            }
+        });
+    });
+
 </script>
